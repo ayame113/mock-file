@@ -181,6 +181,9 @@ Deno.openSync = function (path: string | URL) {
     buf.rid = DEFAULT_RID;
     return buf as unknown as Deno.FsFile;
   }
+  if (path === "./db.sqlite-journal") {
+    return { rid: -1000 } as Deno.FsFile;
+  }
   console.log("aaaaaaaa");
 
   throw new Error("can not open" + path);
