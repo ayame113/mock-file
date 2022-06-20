@@ -5,6 +5,7 @@ import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
 import { copy } from "https://deno.land/std@0.144.0/bytes/mod.ts";
 import { assert } from "https://deno.land/std@0.144.0/_util/assert.ts";
 
+// copy from https://deno.land/std@0.144.0/io/mod.ts
 const MAX_SIZE = 2 ** 32 - 2;
 export class Buffer {
   static #nextRid = -100;
@@ -171,6 +172,7 @@ export class Buffer {
   }
 }
 
+// Prepare a mock buffer as an alternative to files
 const f = await Deno.open("./db.sqlite");
 const u8 = await readAll(f);
 f.close();
@@ -179,6 +181,7 @@ const dbRid = dbBuf.rid;
 const journalBuf = new Buffer();
 const journalRid = journalBuf.rid;
 
+// mock deno sync api
 Deno.openSync = function (path: string | URL) {
   if (path === "./db.sqlite") {
     return dbBuf as unknown as Deno.FsFile;
@@ -219,10 +222,11 @@ Deno.funlockSync = () => console.log("ignore call funlockSync") as any;
 // deno-lint-ignore no-explicit-any
 Deno.close = () => console.log("ignore call close") as any;
 
+// read db
 const db = new DB("./db.sqlite", { mode: "read" });
-console.log(db.query("select * from sqlite_master;"));
 
 const rows = db.query("SELECT * FROM people");
 console.log(rows);
 
+// very simple server
 serve(() => Response.json(rows));
