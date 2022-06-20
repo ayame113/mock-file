@@ -197,8 +197,14 @@ Deno.readSync = function (rid: number, buffer: Uint8Array) {
   }
   throw new Error("can not seek");
 };
-Deno.flockSync = console.log() as any;
-Deno.funlockSync = console.log() as any;
+Deno.flockSync = console.log("ignore call flockSync") as any;
+Deno.funlockSync = console.log("ignore call funlockSync") as any;
+Deno.fstatSync = function (rid: number) {
+  if (rid === DEFAULT_RID) {
+    return { size: buf.length } as Deno.FileInfo;
+  }
+  throw new Error("can not read file info");
+};
 
 const db = new DB("./db.sqlite", { mode: "read" });
 console.log(db.query("select * from sqlite_master;"));
