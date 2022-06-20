@@ -193,16 +193,16 @@ Deno.seekSync = function (rid: number, offset: number, whence: Deno.SeekMode) {
   if (rid === dbRid) {
     return dbBuf.seekSync(offset, whence);
   }
-  if (rid === journalRid) {
-    return dbBuf.seekSync(offset, whence);
-  }
   throw new Error("can not seek" + rid);
 };
 Deno.readSync = function (rid: number, buffer: Uint8Array) {
   if (rid === dbRid) {
     return dbBuf.readSync(buffer);
   }
-  throw new Error("can not seek");
+  if (rid === journalRid) {
+    return dbBuf.readSync(buffer);
+  }
+  throw new Error("can not read");
 };
 Deno.flockSync = console.log("ignore call flockSync") as any;
 Deno.funlockSync = console.log("ignore call funlockSync") as any;
