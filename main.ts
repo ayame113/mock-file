@@ -215,6 +215,7 @@ Deno.fstatSync = function (rid: number) {
   }
   throw new Error("can not read file info");
 };
+Deno.close = console.log("ignore call close") as any;
 
 const db = new DB("./db.sqlite", { mode: "read" });
 console.log(db.query("select * from sqlite_master;"));
