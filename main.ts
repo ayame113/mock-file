@@ -207,15 +207,15 @@ Deno.readSync = function (rid: number, buffer: Uint8Array) {
   }
   throw new Error("can not read");
 };
-Deno.flockSync = console.log("ignore call flockSync") as any;
-Deno.funlockSync = console.log("ignore call funlockSync") as any;
+Deno.flockSync = () => console.log("ignore call flockSync") as any;
+Deno.funlockSync = () => console.log("ignore call funlockSync") as any;
 Deno.fstatSync = function (rid: number) {
   if (rid === dbRid) {
     return { size: dbBuf.length } as Deno.FileInfo;
   }
   throw new Error("can not read file info");
 };
-Deno.close = console.log("ignore call close") as any;
+Deno.close = () => console.log("ignore call close") as any;
 
 const db = new DB("./db.sqlite", { mode: "read" });
 console.log(db.query("select * from sqlite_master;"));
