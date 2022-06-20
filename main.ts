@@ -5,7 +5,6 @@ import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
 import { copy } from "https://deno.land/std@0.144.0/bytes/mod.ts";
 import { assert } from "https://deno.land/std@0.144.0/_util/assert.ts";
 
-const MIN_READ = 32 * 1024;
 const MAX_SIZE = 2 ** 32 - 2;
 export class Buffer {
   static #nextRid = -100;
@@ -207,14 +206,17 @@ Deno.readSync = function (rid: number, buffer: Uint8Array) {
   }
   throw new Error("can not read");
 };
-Deno.flockSync = () => console.log("ignore call flockSync") as any;
-Deno.funlockSync = () => console.log("ignore call funlockSync") as any;
 Deno.fstatSync = function (rid: number) {
   if (rid === dbRid) {
     return { size: dbBuf.length } as Deno.FileInfo;
   }
   throw new Error("can not read file info");
 };
+// deno-lint-ignore no-explicit-any
+Deno.flockSync = () => console.log("ignore call flockSync") as any;
+// deno-lint-ignore no-explicit-any
+Deno.funlockSync = () => console.log("ignore call funlockSync") as any;
+// deno-lint-ignore no-explicit-any
 Deno.close = () => console.log("ignore call close") as any;
 
 const db = new DB("./db.sqlite", { mode: "read" });
