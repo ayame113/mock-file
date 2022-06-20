@@ -5,16 +5,18 @@ import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
 import { copy } from "https://deno.land/std@0.144.0/bytes/mod.ts";
 import { assert } from "https://deno.land/std@0.144.0/_util/assert.ts";
 
-const DEFAULT_RID = -9999;
-
 const MIN_READ = 32 * 1024;
 const MAX_SIZE = 2 ** 32 - 2;
 export class Buffer {
+  static #nextRid = -100;
+  rid: number;
+
   #buf: Uint8Array; // contents are the bytes buf[off : len(buf)]
   #off = 0; // read at buf[off], write at buf[buf.byteLength]
 
   constructor(ab?: ArrayBufferLike | ArrayLike<number>) {
     this.#buf = ab === undefined ? new Uint8Array(0) : new Uint8Array(ab);
+    this.rid = Buffer.#nextRid--;
   }
 
   /** Returns a slice holding the unread portion of the buffer.
@@ -173,38 +175,40 @@ export class Buffer {
 const f = await Deno.open("./db.sqlite");
 const u8 = await readAll(f);
 f.close();
-const buf = new Buffer(u8.buffer);
+const dbBuf = new Buffer(u8.buffer);
+const dbRid = dbBuf.rid;
+const journalBuf = new Buffer();
+const journalRid = journalBuf.rid;
 
 Deno.openSync = function (path: string | URL) {
   if (path === "./db.sqlite") {
-    // @ts-ignore: 😖
-    buf.rid = DEFAULT_RID;
-    return buf as unknown as Deno.FsFile;
+    return dbBuf as unknown as Deno.FsFile;
   }
   if (path === "./db.sqlite-journal") {
-    return { rid: -1000 } as Deno.FsFile;
+    return journalBuf as unknown as Deno.FsFile;
   }
-  console.log("aaaaaaaa");
-
   throw new Error("can not open" + path);
 };
 Deno.seekSync = function (rid: number, offset: number, whence: Deno.SeekMode) {
-  if (rid === DEFAULT_RID) {
-    return buf.seekSync(offset, whence);
+  if (rid === dbRid) {
+    return dbBuf.seekSync(offset, whence);
+  }
+  if (rid === journalRid) {
+    return dbBuf.seekSync(offset, whence);
   }
   throw new Error("can not seek");
 };
 Deno.readSync = function (rid: number, buffer: Uint8Array) {
-  if (rid === DEFAULT_RID) {
-    return buf.readSync(buffer);
+  if (rid === dbRid) {
+    return dbBuf.readSync(buffer);
   }
   throw new Error("can not seek");
 };
 Deno.flockSync = console.log("ignore call flockSync") as any;
 Deno.funlockSync = console.log("ignore call funlockSync") as any;
 Deno.fstatSync = function (rid: number) {
-  if (rid === DEFAULT_RID) {
-    return { size: buf.length } as Deno.FileInfo;
+  if (rid === dbRid) {
+    return { size: dbBuf.length } as Deno.FileInfo;
   }
   throw new Error("can not read file info");
 };
