@@ -196,7 +196,7 @@ Deno.seekSync = function (rid: number, offset: number, whence: Deno.SeekMode) {
   if (rid === journalRid) {
     return dbBuf.seekSync(offset, whence);
   }
-  throw new Error("can not seek");
+  throw new Error("can not seek" + rid);
 };
 Deno.readSync = function (rid: number, buffer: Uint8Array) {
   if (rid === dbRid) {
