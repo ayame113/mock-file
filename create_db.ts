@@ -1,6 +1,6 @@
 import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
-Deno.removeSync("./db.sqlite");
-const db = new DB("./db.sqlite");
+// Deno.removeSync("./db.sqlite");
+const db = new DB("./db.sqlite", { mode: "create" });
 db.execute(`
   CREATE TABLE people (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -10,5 +10,6 @@ db.execute(`
   );
   INSERT INTO people (name, age, city) VALUES ('Peter Parker', 21, 'nyc');
 `);
-const rows = db.query("SELECT * FROM people ");
+const rows = db.query("SELECT * FROM people");
 console.log(rows);
+db.close();
