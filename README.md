@@ -29,6 +29,8 @@ const db = new DB("./db.sqlite", { mode: "read" });
 serve(() => Response.json(db.query("SELECT * FROM people")));
 ```
 
+# Support status
+
 - [x] Deno.FsFile#read(p: Uint8Array): Promise<number | null>
 - [x] Deno.FsFile#readSync(p: Uint8Array): number | null
 - [x] Deno.FsFile#write(p: Uint8Array): Promise<number>
