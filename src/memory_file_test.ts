@@ -6,6 +6,7 @@ import {
   readAll,
   writeAll,
 } from "https://deno.land/std@0.144.0/streams/mod.ts";
+import { delay } from "https://deno.land/std@0.144.0/async/mod.ts";
 import { InMemoryFsFile } from "./memory_file.ts";
 
 const targetFile = new URL("../tests/tmp.txt", import.meta.url);
@@ -95,6 +96,7 @@ async function assertsFileState<T>(
   await assertFileContent(f1);
 }
 
+await delay(5000);
 Deno.test({
   name: "InMemoryFsFile - statSync",
   async fn() {
@@ -176,7 +178,7 @@ Deno.test({
       f2,
       (f) => writeAll(f, new Uint8Array([1])),
     );
-    assertFileContent(f1, new Uint8Array([0, 0, 0, 1]));
+    await assertFileContent(f1, new Uint8Array([0, 0, 0, 1]));
     f1.close();
     f2.close();
   },
