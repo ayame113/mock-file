@@ -212,14 +212,3 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
       return originalFunc(path, data, options);
     },
 });
-
-// Deno.fdatasyncSync;
-// Deno.fsync;
-// Deno.fdatasyncSync;
-// Deno.fdatasync;
-// Deno.flock;
-// Deno.flockSync;
-// Deno.funlock;
-// Deno.funlockSync;
-// stat
-// truncateSync
