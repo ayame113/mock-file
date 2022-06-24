@@ -24,6 +24,17 @@ const defaultFileInfo = {
   uid: null,
 };
 
+/**
+ * Preload the file that will be opened/read later.
+ *
+ * ```ts
+ * import { prepareLocalFile } from "https://deno.land/x/mock_file@$VERSION/mod.ts";
+ *
+ * await prepareLocalFile("./path/to/file.txt")
+ *
+ * const file = Deno.openSync("./path/to/file.txt")
+ * ```
+ */
 export async function prepareLocalFile(path: string | URL) {
   const [content, info] = await Promise.all([
     Deno.readFile(path),
@@ -32,6 +43,21 @@ export async function prepareLocalFile(path: string | URL) {
   new VirtualFile(path, content, info);
 }
 
+/**
+ * Preloads virtual file that will be opened/read later.
+ * @param path Path to file.
+ * @param content Content of file. Default to empty Uint8Array.
+ * @param fileInfo The object used as the return value of file.stat.
+ *
+ * ```ts
+ * import { prepareVirtualFile } from "https://deno.land/x/mock_file@$VERSION/mod.ts";
+ *
+ * const content = new TextEncoder().encode("hello world");
+ * prepareVirtualFile("./no/such/file.txt", content);
+ *
+ * const file = Deno.openSync("./no/such/file.txt");
+ * ```
+ */
 export function prepareVirtualFile(
   path: string | URL,
   content = new Uint8Array(),
@@ -50,6 +76,7 @@ export function pathFromURL(path: string | URL) {
   return resolve(path);
 }
 
+/** File system mock. This has a one-to-one correspondence with the path. */
 export class VirtualFile {
   static readonly pathToFile: Readonly<
     Record<string, VirtualFile | undefined>
@@ -68,6 +95,7 @@ export class VirtualFile {
   }
 }
 
+/** A mock of Deno.FsFile. This has a one-to-one correspondence with rid. */
 export class InMemoryFsFile implements Deno.FsFile {
   static readonly ridToFile: Readonly<
     Record<number, InMemoryFsFile | undefined>

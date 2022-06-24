@@ -1,5 +1,8 @@
 # mock-file
 
+[![codecov](https://codecov.io/gh/ayame113/mock-file/branch/main/graph/badge.svg?token=nAm49gNAw5)](https://codecov.io/gh/ayame113/mock-file)
+[![Test](https://github.com/ayame113/mock-file/actions/workflows/test.yml/badge.svg)](https://github.com/ayame113/mock-file/actions/workflows/test.yml)
+
 Some filesystem APIs cannot be used with deno deploy (eg `Deno.readFileSync`,
 `Deno.writeFile`).
 
@@ -14,10 +17,13 @@ https://deploy-sqlite.deno.dev/.
 With this module, SQLite works on deno deploy.
 
 ```ts
+import {
+  prepareLocalFile,
+  prepareVirtualFile,
+} from "https://deno.land/x/mock_file@$VERSION/mod.ts";
+
 import { serve } from "https://deno.land/std@0.144.0/http/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
-
-import { prepareLocalFile, prepareVirtualFile } from "../mod.ts";
 
 await prepareLocalFile("./db.sqlite");
 prepareVirtualFile("./db.sqlite-journal");
