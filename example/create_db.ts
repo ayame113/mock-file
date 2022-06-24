@@ -1,6 +1,6 @@
 import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
-// Deno.removeSync("./db.sqlite");
-const db = new DB("./db.sqlite", { mode: "create" });
+// Deno.removeSync("./example/db.sqlite");
+const db = new DB("./example/db.sqlite", { mode: "create" });
 db.execute(`
   CREATE TABLE people (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
