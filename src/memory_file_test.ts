@@ -20,7 +20,7 @@ async function prepareFsFile(
     targetFile,
     { create: true, write: true, read: true },
   );
-  const mockFile = new InMemoryFsFile({ buffer, info: await realFile.stat() });
+  const mockFile = new InMemoryFsFile({ buffer, info: realFile.statSync() });
   return [mockFile, realFile];
 }
 async function assertFileContent(mock: InMemoryFsFile, expect?: Uint8Array) {
