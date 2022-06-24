@@ -1,17 +1,10 @@
 import { serve } from "https://deno.land/std@0.144.0/http/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
 
-import { prepareFile } from "./mod.ts";
+import { prepareFile, prepareVirtualFile } from "./mod.ts";
 
-import { InMemoryFsFile, pathFromURL, VirtualFile } from "./src/memory_file.ts";
-// prepare file
 await prepareFile("./db.sqlite");
-
-console.log(InMemoryFsFile, VirtualFile);
-
-console.log(pathFromURL("./db.sqlite"));
-
-console.log(Deno.openSync("./db.sqlite"));
+prepareVirtualFile("./db.sqlite-journal");
 
 // read db
 const db = new DB("./db.sqlite", { mode: "read" });

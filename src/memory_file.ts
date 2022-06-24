@@ -17,13 +17,13 @@ export class VirtualFile {
   buffer: Uint8Array;
   readonly info: Deno.FileInfo;
   constructor(
-    path: string,
+    path: string | URL,
     buffer: Uint8Array,
     info: Deno.FileInfo,
   ) {
     this.buffer = buffer;
     this.info = info;
-    VirtualFile.pathToFile[path] = this;
+    VirtualFile.pathToFile[pathFromURL(path)] = this;
   }
 }
 
