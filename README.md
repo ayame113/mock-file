@@ -3,11 +3,17 @@
 [![codecov](https://codecov.io/gh/ayame113/mock-file/branch/main/graph/badge.svg?token=nAm49gNAw5)](https://codecov.io/gh/ayame113/mock-file)
 [![Test](https://github.com/ayame113/mock-file/actions/workflows/test.yml/badge.svg)](https://github.com/ayame113/mock-file/actions/workflows/test.yml)
 
+https://deno.land/x/mock_file
+
 Some filesystem APIs cannot be used with deno deploy (eg `Deno.readFileSync`,
 `Deno.writeFile`).
 
 This module makes a copy of the file in memory beforehand so that you can use
 the sync API and write API on deno deploy.
+
+> **Warning** It supports writing to files, but it does not actually cause
+> writing to the file system. If you change the contents of the file, it only
+> affects the memory.
 
 # Usage
 
