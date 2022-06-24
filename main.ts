@@ -11,7 +11,7 @@ console.log(InMemoryFsFile, VirtualFile);
 
 console.log(pathFromURL("./db.sqlite"));
 
-console.log(await Deno.open("./db.sqlite"));
+console.log(Deno.openSync("./db.sqlite"));
 
 // read db
 const db = new DB("./db.sqlite", { mode: "read" });
