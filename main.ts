@@ -3,11 +3,15 @@ import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
 
 import { prepareFile } from "./mod.ts";
 
-import { pathFromURL } from "./src/memory_file.ts";
+import { InMemoryFsFile, pathFromURL, VirtualFile } from "./src/memory_file.ts";
 // prepare file
 await prepareFile("./db.sqlite");
 
+console.log(InMemoryFsFile, VirtualFile);
+
 console.log(pathFromURL("./db.sqlite"));
+
+console.log(await Deno.open("./db.sqlite"));
 
 // read db
 const db = new DB("./db.sqlite", { mode: "read" });
