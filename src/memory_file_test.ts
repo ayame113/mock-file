@@ -6,9 +6,9 @@ import {
   readAll,
   writeAll,
 } from "https://deno.land/std@0.144.0/streams/mod.ts";
-import { InMemoryFsFile } from "./src/memory_file.ts";
+import { InMemoryFsFile } from "./memory_file.ts";
 
-const targetFile = new URL("./tests/tmp.txt", import.meta.url);
+const targetFile = new URL("../tests/tmp.txt", import.meta.url);
 const { SeekMode } = Deno;
 
 async function prepareFsFile(
@@ -25,7 +25,7 @@ async function prepareFsFile(
 }
 async function assertFileContent(mock: InMemoryFsFile, expect?: Uint8Array) {
   // @ts-ignore: for test
-  const actual = mock[Symbol.for("readFile")]();
+  const actual = mock[Symbol.for("unsafeGetBufferForTestDontUse")]();
   isSameUint8Array(
     actual,
     await Deno.readFile(targetFile),

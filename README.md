@@ -2,10 +2,18 @@
 
 https://deploy-sqlite.deno.dev/
 
-deno deployでSQLiteを動かすサンプル。
+```ts
+import { serve } from "https://deno.land/std@0.144.0/http/mod.ts";
+import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
 
-Bufferを使い`Deno.openSync`や`Deno.seekSync`や`Deno.readSync`をモックしています。
+import { prepareFile, prepareVirtualFile } from "./mod.ts";
 
-A sample that runs SQLite with deno deploy.
+await prepareFile("./db.sqlite");
+prepareVirtualFile("./db.sqlite-journal");
 
-I'm using Buffer to mock `Deno.openSync`, `Deno.seekSync` and `Deno.readSync`.
+// read db
+const db = new DB("./db.sqlite", { mode: "read" });
+
+// very simple server
+serve(() => Response.json(db.query("SELECT * FROM people")));
+```

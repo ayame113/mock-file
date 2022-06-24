@@ -140,10 +140,7 @@ export class InMemoryFsFile implements Deno.FsFile {
       `  #offset = ${this.#offset};\n` +
       `}`;
   }
-  [Symbol.for("readFile")]() {
+  [Symbol.for("unsafeGetBufferForTestDontUse")]() {
     return this.#file.buffer.slice();
-  }
-  [Symbol.for("writeFile")](buf: Uint8Array) {
-    this.#file.buffer = buf;
   }
 }

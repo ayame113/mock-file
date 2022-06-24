@@ -1,4 +1,4 @@
-import "./src/polyfill.ts";
+import { DenoPolyfill } from "./src/polyfill.ts";
 import { VirtualFile } from "./src/memory_file.ts";
 export * from "./src/memory_file.ts";
 
@@ -21,13 +21,14 @@ const defaultFileInfo = {
   uid: null,
 };
 
-export async function prepareFile(path: string | URL) {
+export async function prepareLocalFile(path: string | URL) {
   const [content, info] = await Promise.all([
     Deno.readFile(path),
     Deno.stat(path),
   ]);
   new VirtualFile(path, content, info);
 }
+
 export function prepareVirtualFile(
   path: string | URL,
   content = new Uint8Array(),
@@ -38,3 +39,5 @@ export function prepareVirtualFile(
     ...fileInfo,
   });
 }
+
+Object.assign(Deno, DenoPolyfill);
