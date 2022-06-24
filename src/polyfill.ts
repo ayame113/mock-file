@@ -125,6 +125,8 @@ mock(Deno, "openSync", (originalFunc) =>
     if (file) {
       return new InMemoryFsFile(file);
     }
+    console.log(path, options, file);
+
     return originalFunc(path, options);
   });
 
