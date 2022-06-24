@@ -1,193 +1,210 @@
-import { InMemoryFsFile, pathFromURL, VirtualFile } from "./memory_file.ts";
+import {
+  type InMemoryFsFile,
+  pathFromURL,
+  type VirtualFile,
+} from "./memory_file.ts";
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 
-function createDenoPolyfill(
+function createDenoPolyfillFunc<K extends keyof typeof Deno>(
   obj: {
-    [K in keyof typeof Deno]?: (original: typeof Deno[K]) => typeof Deno[K];
+    [_K in K]: (
+      original: typeof Deno[_K],
+      opt: {
+        ridToFile: (rid: number) => InMemoryFsFile | undefined;
+        pathToFile: (path: string) => VirtualFile | undefined;
+        openFile: (src: VirtualFile) => InMemoryFsFile;
+      },
+    ) => typeof Deno[_K];
   },
 ) {
-  const res: Partial<typeof Deno> = {};
-  for (
-    const [key, fn] of Object.entries(obj) as [
-      keyof typeof Deno,
-      typeof Deno[keyof typeof Deno],
-    ][]
-  ) {
-    // @ts-ignore: 😖
-    res[key] = fn(Deno[key]);
-  }
-  return res;
+  return function ({ ridToFile, pathToFile, openFile }: {
+    ridToFile: (rid: number) => InMemoryFsFile | undefined;
+    pathToFile: (path: string) => VirtualFile | undefined;
+    openFile: (src: VirtualFile) => InMemoryFsFile;
+  }): { [_K in K]: typeof Deno[_K] } {
+    const res: Record<string, unknown> = {};
+    for (
+      const [key, fn] of Object.entries(obj) as [
+        keyof typeof Deno,
+        typeof Deno[keyof typeof Deno],
+      ][]
+    ) {
+      // @ts-ignore: 😖
+      res[key] = fn(Deno[key], { ridToFile, pathToFile, openFile });
+    }
+    return res as { [_K in K]: typeof Deno[_K] };
+  };
 }
 
-export const DenoPolyfill = createDenoPolyfill({
-  read: (originalFunc) =>
+export const createDenoPolyfill = createDenoPolyfillFunc({
+  read: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.read(...args);
       }
       return originalFunc(rid, ...args);
     },
-  readSync: (originalFunc) =>
+  readSync: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.readSync(...args);
       }
       return originalFunc(rid, ...args);
     },
-  write: (originalFunc) =>
+  write: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.write(...args);
       }
       return originalFunc(rid, ...args);
     },
-  writeSync: (originalFunc) =>
+  writeSync: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.writeSync(...args);
       }
       return originalFunc(rid, ...args);
     },
-  seek: (originalFunc) =>
+  seek: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.seek(...args);
       }
       return originalFunc(rid, ...args);
     },
-  seekSync: (originalFunc) =>
+  seekSync: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.seekSync(...args);
       }
       return originalFunc(rid, ...args);
     },
-  fstat: (originalFunc) =>
+  fstat: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.stat(...args);
       }
       return originalFunc(rid, ...args);
     },
-  fstatSync: (originalFunc) =>
+  fstatSync: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.statSync(...args);
       }
       return originalFunc(rid, ...args);
     },
-  ftruncate: (originalFunc) =>
+  ftruncate: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.truncate(...args);
       }
       return originalFunc(rid, ...args);
     },
-  ftruncateSync: (originalFunc) =>
+  ftruncateSync: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.truncateSync(...args);
       }
       return originalFunc(rid, ...args);
     },
-  close: (originalFunc) =>
+  close: (originalFunc, { ridToFile }) =>
     (rid, ...args) => {
-      const file = InMemoryFsFile.ridToFile[rid];
+      const file = ridToFile(rid);
       if (file) {
         return file.close(...args);
       }
       return originalFunc(rid, ...args);
     },
-  open: (originalFunc) =>
+  open: (originalFunc, { pathToFile, openFile }) =>
     (path, options) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
-        return Promise.resolve(new InMemoryFsFile(file));
+        return Promise.resolve(openFile(file));
       }
       return originalFunc(path, options);
     },
-  openSync: (originalFunc) =>
+  openSync: (originalFunc, { pathToFile, openFile }) =>
     (path, options) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
-        return new InMemoryFsFile(file);
+        return openFile(file);
       }
       return originalFunc(path, options);
     },
-  readFile: (originalFunc) =>
+  readFile: (originalFunc, { pathToFile }) =>
     (path, options) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
         return Promise.resolve(file.buffer);
       }
       return originalFunc(path, options);
     },
-  readFileSync: (originalFunc) =>
+  readFileSync: (originalFunc, { pathToFile }) =>
     (path) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
         return file.buffer;
       }
       return originalFunc(path);
     },
-  readTextFile: (originalFunc) =>
+  readTextFile: (originalFunc, { pathToFile }) =>
     (path, options) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
         return Promise.resolve(decoder.decode(file.buffer));
       }
       return originalFunc(path, options);
     },
-  readTextFileSync: (originalFunc) =>
+  readTextFileSync: (originalFunc, { pathToFile }) =>
     (path) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
         return decoder.decode(file.buffer);
       }
       return originalFunc(path);
     },
-  writeFile: (originalFunc) =>
+  writeFile: (originalFunc, { pathToFile }) =>
     (path, data, options) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
         file.buffer = data;
         return Promise.resolve();
       }
       return originalFunc(path, data, options);
     },
-  writeFileSync: (originalFunc) =>
+  writeFileSync: (originalFunc, { pathToFile }) =>
     (path, data, options) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
         file.buffer = data;
         return;
       }
       return originalFunc(path, data, options);
     },
-  writeTextFile: (originalFunc) =>
+  writeTextFile: (originalFunc, { pathToFile }) =>
     (path, data, options) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
         file.buffer = encoder.encode(data);
         return Promise.resolve();
       }
       return originalFunc(path, data, options);
     },
-  writeTextFileSync: (originalFunc) =>
+  writeTextFileSync: (originalFunc, { pathToFile }) =>
     (path, data, options) => {
-      const file = VirtualFile.pathToFile[pathFromURL(path)];
+      const file = pathToFile(pathFromURL(path));
       if (file) {
         file.buffer = encoder.encode(data);
         return;
@@ -204,3 +221,5 @@ export const DenoPolyfill = createDenoPolyfill({
 // Deno.flockSync;
 // Deno.funlock;
 // Deno.funlockSync;
+// stat
+// truncateSync

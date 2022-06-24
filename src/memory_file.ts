@@ -5,6 +5,44 @@ import {
   resolve,
 } from "https://deno.land/std@0.144.0/path/mod.ts";
 
+const defaultFileInfo = {
+  atime: null,
+  birthtime: null,
+  blksize: null,
+  blocks: null,
+  dev: null,
+  gid: null,
+  ino: null,
+  isDirectory: false,
+  isFile: true,
+  isSymlink: false,
+  mode: null,
+  mtime: null,
+  nlink: null,
+  rdev: null,
+  size: 0,
+  uid: null,
+};
+
+export async function prepareLocalFile(path: string | URL) {
+  const [content, info] = await Promise.all([
+    Deno.readFile(path),
+    Deno.stat(path),
+  ]);
+  new VirtualFile(path, content, info);
+}
+
+export function prepareVirtualFile(
+  path: string | URL,
+  content = new Uint8Array(),
+  fileInfo: Partial<Deno.FileInfo> = {},
+) {
+  new VirtualFile(path, content, {
+    ...defaultFileInfo,
+    ...fileInfo,
+  });
+}
+
 export function pathFromURL(path: string | URL) {
   if (path instanceof URL || path.startsWith("file:")) {
     return fromFileUrl(path);
@@ -13,7 +51,9 @@ export function pathFromURL(path: string | URL) {
 }
 
 export class VirtualFile {
-  static readonly pathToFile: Record<string, VirtualFile | undefined> = {};
+  static readonly pathToFile: Readonly<
+    Record<string, VirtualFile | undefined>
+  > = {};
   buffer: Uint8Array;
   readonly info: Deno.FileInfo;
   constructor(
@@ -23,12 +63,15 @@ export class VirtualFile {
   ) {
     this.buffer = buffer;
     this.info = info;
+    // @ts-expect-error: readonly
     VirtualFile.pathToFile[pathFromURL(path)] = this;
   }
 }
 
 export class InMemoryFsFile implements Deno.FsFile {
-  static readonly ridToFile: Record<number, InMemoryFsFile | undefined> = {};
+  static readonly ridToFile: Readonly<
+    Record<number, InMemoryFsFile | undefined>
+  > = {};
   static #nextRid = -100;
   #offset = 0;
   #rid;
@@ -39,6 +82,7 @@ export class InMemoryFsFile implements Deno.FsFile {
   }) {
     this.#file = virtualFile;
     this.#rid = InMemoryFsFile.#nextRid--;
+    // @ts-expect-error: readonly
     InMemoryFsFile.ridToFile[this.#rid] = this;
   }
   read(p: Uint8Array): Promise<number | null> {
@@ -110,6 +154,7 @@ export class InMemoryFsFile implements Deno.FsFile {
     this.#file.buffer = new Uint8Array(this.#file.buffer.buffer, 0, newLength);
   }
   close() {
+    // @ts-expect-error: readonly
     delete InMemoryFsFile.ridToFile[this.#rid];
   }
   get readable(): ReadableStream<Uint8Array> {
