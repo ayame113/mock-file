@@ -76,10 +76,7 @@ export class InMemoryFsFile implements Deno.FsFile {
   #offset = 0;
   #rid;
   #file;
-  constructor(virtualFile: {
-    buffer: Uint8Array;
-    info: Deno.FileInfo;
-  }) {
+  constructor(virtualFile: { buffer: Uint8Array; info: Deno.FileInfo }) {
     this.#file = virtualFile;
     this.#rid = InMemoryFsFile.#nextRid--;
     // @ts-expect-error: readonly
@@ -143,7 +140,7 @@ export class InMemoryFsFile implements Deno.FsFile {
     return Promise.resolve(this.statSync());
   }
   statSync(): Deno.FileInfo {
-    return this.#file.info;
+    return { ...this.#file.info };
   }
   truncate(len?: number | undefined): Promise<void> {
     return Promise.resolve(this.truncateSync(len));
