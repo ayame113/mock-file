@@ -42,6 +42,13 @@ const db = new DB("./db.sqlite", { mode: "read" });
 serve(() => Response.json(db.query("SELECT * FROM people")));
 ```
 
+The above code should be able to load faster as the sqlite file is delivered to
+the Edge location (like
+[Cloudflare D1](https://www.cloudflare.com/press-releases/2022/cloudflare-announces-d1-first-integrated-database/)).
+
+However, keep in mind that writes are only reflected in memory and are **not**
+persistent when you change the data.
+
 # API
 
 ### prepareLocalFile(path: string|URL)
@@ -104,3 +111,4 @@ can use any Uint8Array as the content of the file.
 - [ ] `Deno.statSync(path: string | URL): Deno.FileInfo`
 - [ ] `Deno.truncate(name: string, len?: number | undefined): Promise<void>`
 - [ ] `Deno.truncateSync(name: string, len?: number | undefined): void`
+- [ ] And more...(?)
