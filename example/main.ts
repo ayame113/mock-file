@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.145.0/http/mod.ts";
-import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
+import { serve } from "https://deno.land/std@0.157.0/http/mod.ts";
+import { DB } from "https://deno.land/x/sqlite@v3.5.0/mod.ts";
 
 import { prepareLocalFile, prepareVirtualFile } from "../mod.ts";
 
