@@ -39,171 +39,151 @@ function createDenoPolyfillFunc<K extends keyof typeof Deno>(
 }
 
 export const createDenoPolyfill = createDenoPolyfillFunc({
-  read: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.read(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  readSync: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.readSync(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  write: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.write(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  writeSync: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.writeSync(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  seek: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.seek(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  seekSync: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.seekSync(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  fstat: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.stat(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  fstatSync: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.statSync(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  ftruncate: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.truncate(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  ftruncateSync: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.truncateSync(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  close: (originalFunc, { ridToFile }) =>
-    (rid, ...args) => {
-      const file = ridToFile(rid);
-      if (file) {
-        return file.close(...args);
-      }
-      return originalFunc(rid, ...args);
-    },
-  open: (originalFunc, { pathToFile, openFile }) =>
-    (path, options) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        return Promise.resolve(openFile(file));
-      }
-      return originalFunc(path, options);
-    },
-  openSync: (originalFunc, { pathToFile, openFile }) =>
-    (path, options) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        return openFile(file);
-      }
-      return originalFunc(path, options);
-    },
-  readFile: (originalFunc, { pathToFile }) =>
-    (path, options) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        return Promise.resolve(file.buffer);
-      }
-      return originalFunc(path, options);
-    },
-  readFileSync: (originalFunc, { pathToFile }) =>
-    (path) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        return file.buffer;
-      }
-      return originalFunc(path);
-    },
-  readTextFile: (originalFunc, { pathToFile }) =>
-    (path, options) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        return Promise.resolve(decoder.decode(file.buffer));
-      }
-      return originalFunc(path, options);
-    },
-  readTextFileSync: (originalFunc, { pathToFile }) =>
-    (path) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        return decoder.decode(file.buffer);
-      }
-      return originalFunc(path);
-    },
-  writeFile: (originalFunc, { pathToFile }) =>
-    (path, data, options) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        file.buffer = data;
-        return Promise.resolve();
-      }
-      return originalFunc(path, data, options);
-    },
-  writeFileSync: (originalFunc, { pathToFile }) =>
-    (path, data, options) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        file.buffer = data;
-        return;
-      }
-      return originalFunc(path, data, options);
-    },
-  writeTextFile: (originalFunc, { pathToFile }) =>
-    (path, data, options) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        file.buffer = encoder.encode(data);
-        return Promise.resolve();
-      }
-      return originalFunc(path, data, options);
-    },
-  writeTextFileSync: (originalFunc, { pathToFile }) =>
-    (path, data, options) => {
+  read: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.read(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  readSync: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.readSync(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  write: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.write(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  writeSync: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.writeSync(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  seek: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.seek(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  seekSync: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.seekSync(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  fstat: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.stat(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  fstatSync: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.statSync(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  ftruncate: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.truncate(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  ftruncateSync: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.truncateSync(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  close: (originalFunc, { ridToFile }) => (rid, ...args) => {
+    const file = ridToFile(rid);
+    if (file) {
+      return file.close(...args);
+    }
+    return originalFunc(rid, ...args);
+  },
+  open: (originalFunc, { pathToFile, openFile }) => (path, options) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return Promise.resolve(openFile(file));
+    }
+    return originalFunc(path, options);
+  },
+  openSync: (originalFunc, { pathToFile, openFile }) => (path, options) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return openFile(file);
+    }
+    return originalFunc(path, options);
+  },
+  readFile: (originalFunc, { pathToFile }) => (path, options) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return Promise.resolve(file.buffer);
+    }
+    return originalFunc(path, options);
+  },
+  readFileSync: (originalFunc, { pathToFile }) => (path) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return file.buffer;
+    }
+    return originalFunc(path);
+  },
+  readTextFile: (originalFunc, { pathToFile }) => (path, options) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return Promise.resolve(decoder.decode(file.buffer));
+    }
+    return originalFunc(path, options);
+  },
+  readTextFileSync: (originalFunc, { pathToFile }) => (path) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return decoder.decode(file.buffer);
+    }
+    return originalFunc(path);
+  },
+  writeFile: (originalFunc, { pathToFile }) => (path, data, options) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      file.buffer = data;
+      return Promise.resolve();
+    }
+    return originalFunc(path, data, options);
+  },
+  writeFileSync: (originalFunc, { pathToFile }) => (path, data, options) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      file.buffer = data;
+      return;
+    }
+    return originalFunc(path, data, options);
+  },
+  writeTextFile: (originalFunc, { pathToFile }) => (path, data, options) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      file.buffer = encoder.encode(data);
+      return Promise.resolve();
+    }
+    return originalFunc(path, data, options);
+  },
+  writeTextFileSync:
+    (originalFunc, { pathToFile }) => (path, data, options) => {
       const file = pathToFile(pathFromURL(path));
       if (file) {
         file.buffer = encoder.encode(data);
