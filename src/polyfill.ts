@@ -158,13 +158,9 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
     }
     return originalFunc(path);
   },
-  writeFile: (originalFunc, { pathToFile }) => async (path, data, options) => {
+  writeFile: (originalFunc, { pathToFile }) => (path, data, options) => {
     const file = pathToFile(pathFromURL(path));
     if (file) {
-      if (data instanceof ReadableStream) {
-        const buf = await new Response(data).arrayBuffer();
-        data = new Uint8Array(buf);
-      }
       file.buffer = data;
       return Promise.resolve();
     }
@@ -178,23 +174,14 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
     }
     return originalFunc(path, data, options);
   },
-  writeTextFile:
-    (originalFunc, { pathToFile }) => async (path, data, options) => {
-      const file = pathToFile(pathFromURL(path));
-      if (file) {
-        let text = "";
-        if (data instanceof ReadableStream) {
-          for await (const chunk of data) {
-            text += chunk;
-          }
-        } else {
-          text = data;
-        }
-        file.buffer = encoder.encode(text);
-        return Promise.resolve();
-      }
-      return originalFunc(path, data, options);
-    },
+  writeTextFile: (originalFunc, { pathToFile }) => (path, data, options) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      file.buffer = encoder.encode(data);
+      return Promise.resolve();
+    }
+    return originalFunc(path, data, options);
+  },
   writeTextFileSync:
     (originalFunc, { pathToFile }) => (path, data, options) => {
       const file = pathToFile(pathFromURL(path));

@@ -140,19 +140,18 @@ export class InMemoryFsFile implements Deno.FsFile {
     // this.#end = Math.max(this.#end, newByteLength);
     return p.byteLength;
   }
-  seek(offset: number | bigint, whence: Deno.SeekMode): Promise<number> {
+  seek(offset: number, whence: Deno.SeekMode): Promise<number> {
     return Promise.resolve(this.seekSync(offset, whence));
   }
-  seekSync(offset: number | bigint, whence: Deno.SeekMode): number {
-    // NOTE: Is the BigInt handling correct? please verify.
+  seekSync(offset: number, whence: Deno.SeekMode): number {
     const newOffset = (() => {
       switch (whence) {
         case Deno.SeekMode.Start:
-          return Number(offset);
+          return offset;
         case Deno.SeekMode.Current:
-          return this.#offset + Number(offset);
+          return this.#offset + offset;
         case Deno.SeekMode.End:
-          return this.#file.buffer.byteLength + Number(offset);
+          return this.#file.buffer.byteLength + offset;
         default:
           throw new Error("invalid whence");
       }
