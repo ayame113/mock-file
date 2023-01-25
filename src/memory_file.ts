@@ -1,9 +1,9 @@
-import { assert } from "https://deno.land/std@0.157.0/testing/asserts.ts";
-import { copy } from "https://deno.land/std@0.157.0/bytes/mod.ts";
+import { assert } from "https://deno.land/std@0.173.0/testing/asserts.ts";
+import { copy } from "https://deno.land/std@0.173.0/bytes/mod.ts";
 import {
   fromFileUrl,
   resolve,
-} from "https://deno.land/std@0.157.0/path/mod.ts";
+} from "https://deno.land/std@0.173.0/path/mod.ts";
 
 const defaultFileInfo = {
   atime: null,
