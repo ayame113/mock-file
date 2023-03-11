@@ -70,7 +70,7 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
   seek: (originalFunc, { ridToFile }) => (rid, ...args) => {
     const file = ridToFile(rid);
     if (file) {
-      return file.seek(...args);
+      return file.seek(Number(args[0]), args[1]);
     }
     return originalFunc(rid, ...args);
   },
@@ -161,8 +161,23 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
   writeFile: (originalFunc, { pathToFile }) => (path, data, options) => {
     const file = pathToFile(pathFromURL(path));
     if (file) {
-      file.buffer = data;
-      return Promise.resolve();
+      if (ArrayBuffer.isView(data)) {
+        file.buffer = data;
+        return Promise.resolve();
+      } else {
+        const reader = data.getReader();
+        let result: Uint8Array;
+        let offset = 0;
+        return reader.read().then(function processData({ done, value }): Promise<void> {
+          if (done) {
+            file.buffer = result;
+            return Promise.resolve();
+          }
+          result.set(value, offset);
+          offset += value.length;
+          return reader.read().then(processData);
+        });
+      }
     }
     return originalFunc(path, data, options);
   },
@@ -177,8 +192,21 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
   writeTextFile: (originalFunc, { pathToFile }) => (path, data, options) => {
     const file = pathToFile(pathFromURL(path));
     if (file) {
-      file.buffer = encoder.encode(data);
-      return Promise.resolve();
+      if (typeof data === "string") {
+        file.buffer = encoder.encode(data);
+        return Promise.resolve();
+      } else {
+        const reader = data.getReader();
+        let result: string;
+        return reader.read().then(function processData({ done, value }): Promise<void> {
+          if (done) {
+            file.buffer = encoder.encode(result);
+            return Promise.resolve();
+          }
+          result += value;
+          return reader.read().then(processData);
+        });
+      }
     }
     return originalFunc(path, data, options);
   },

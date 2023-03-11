@@ -89,6 +89,7 @@ async function assertsFileState<T>(
   const [res1, res2] = [await func(f1), await func(f2)];
   assertEquals(res1, res2);
   if (expect != null) {
+    // @ts-ignore dunno
     assertEquals(res1, expect);
   }
   assertEquals(offset(f1), offset(f2));
