@@ -202,10 +202,38 @@ Deno.test({
 });
 
 Deno.test({
-  name: "polyfill - writeFile",
+  name: "polyfill - writeFile w/ Uint8Array",
   async fn() {
     await DenoPolyfill.writeFile(url, new Uint8Array([0, 1, 2]));
     assertEquals<unknown>(defaultBuffer.buffer, new Uint8Array([0, 1, 2]));
+  },
+});
+
+Deno.test({
+  name: "polyfill - writeFile w/ ReadableStream",
+  async fn() {
+    let timeout: number;
+    await DenoPolyfill.writeFile(url, new ReadableStream({
+      start(controller) {
+        const words = defaultFileContent.split(' ');
+        return new Promise((resolve, _reject) => {
+          timeout = setInterval(() => {
+            const word = words.shift();
+            if (word) {
+              controller.enqueue(new TextEncoder().encode(word + (words.length ? ' ' : '')));
+            } else {
+              clearInterval(timeout);
+              controller.close();
+              resolve();
+            }
+          }, 1);
+        });
+      },
+      cancel() {
+        clearTimeout(timeout);
+      }
+    }));
+    assertEquals<unknown>(defaultBuffer.buffer, new TextEncoder().encode(defaultFileContent));
   },
 });
 

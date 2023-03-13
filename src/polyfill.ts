@@ -166,15 +166,21 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
         return Promise.resolve();
       } else {
         const reader = data.getReader();
-        let result: Uint8Array;
+        let result = new Uint8Array(8);
         let offset = 0;
         return reader.read().then(function processData({ done, value }): Promise<void> {
           if (done) {
-            file.buffer = result;
+            file.buffer = result.slice(0, offset);
             return Promise.resolve();
           }
+          // Resize the array if needed
+          if (offset + value.byteLength > result.byteLength) {
+            const temp = new Uint8Array((offset + value.byteLength) * 2);
+            temp.set(result, 0);
+            result = temp;
+          }
           result.set(value, offset);
-          offset += value.length;
+          offset += value.byteLength;
           return reader.read().then(processData);
         });
       }
