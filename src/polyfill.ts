@@ -203,7 +203,7 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
         return Promise.resolve();
       } else {
         const reader = data.getReader();
-        let result: string;
+        let result = '';
         return reader.read().then(function processData({ done, value }): Promise<void> {
           if (done) {
             file.buffer = encoder.encode(result);
