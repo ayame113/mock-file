@@ -28,7 +28,7 @@ import {
   prepareVirtualFile,
 } from "https://deno.land/x/mock_file@$VERSION/mod.ts";
 
-import { serve } from "https://deno.land/std@0.144.0/http/mod.ts";
+import { serve } from "https://deno.land/std@0.180.0/http/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
 
 // Prepare the file in memory before opening it.

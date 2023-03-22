@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.157.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.180.0/testing/asserts.ts";
 
 import { createDenoPolyfill } from "./polyfill.ts";
 import { InMemoryFsFile, pathFromURL, VirtualFile } from "./memory_file.ts";
@@ -202,10 +202,46 @@ Deno.test({
 });
 
 Deno.test({
-  name: "polyfill - writeFile",
+  name: "polyfill - writeFile w/ Uint8Array",
   async fn() {
     await DenoPolyfill.writeFile(url, new Uint8Array([0, 1, 2]));
     assertEquals<unknown>(defaultBuffer.buffer, new Uint8Array([0, 1, 2]));
+  },
+});
+
+Deno.test({
+  name: "polyfill - writeFile w/ ReadableStream",
+  async fn() {
+    let timeout: number;
+    await DenoPolyfill.writeFile(
+      url,
+      new ReadableStream({
+        start(controller) {
+          const words = defaultFileContent.split(" ");
+          return new Promise((resolve, _reject) => {
+            timeout = setInterval(() => {
+              const word = words.shift();
+              if (word) {
+                controller.enqueue(
+                  new TextEncoder().encode(word + (words.length ? " " : "")),
+                );
+              } else {
+                clearInterval(timeout);
+                controller.close();
+                resolve();
+              }
+            }, 1);
+          });
+        },
+        cancel() {
+          clearTimeout(timeout);
+        },
+      }),
+    );
+    assertEquals<unknown>(
+      defaultBuffer.buffer,
+      new TextEncoder().encode(defaultFileContent),
+    );
   },
 });
 
@@ -218,9 +254,43 @@ Deno.test({
 });
 
 Deno.test({
-  name: "polyfill - writeTextFile",
+  name: "polyfill - writeTextFile w/ string",
   async fn() {
     await DenoPolyfill.writeTextFile(url, defaultFileContent);
+    assertEquals<unknown>(
+      defaultBuffer.buffer,
+      new TextEncoder().encode(defaultFileContent),
+    );
+  },
+});
+
+Deno.test({
+  name: "polyfill - writeTextFile w/ ReadableStream",
+  async fn() {
+    let timeout: number;
+    await DenoPolyfill.writeTextFile(
+      url,
+      new ReadableStream({
+        start(controller) {
+          const words = defaultFileContent.split(" ");
+          return new Promise((resolve, _reject) => {
+            timeout = setInterval(() => {
+              const word = words.shift();
+              if (word) {
+                controller.enqueue(word + (words.length ? " " : ""));
+              } else {
+                clearInterval(timeout);
+                controller.close();
+                resolve();
+              }
+            }, 1);
+          });
+        },
+        cancel() {
+          clearTimeout(timeout);
+        },
+      }),
+    );
     assertEquals<unknown>(
       defaultBuffer.buffer,
       new TextEncoder().encode(defaultFileContent),

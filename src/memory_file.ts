@@ -1,16 +1,19 @@
-import { assert } from "https://deno.land/std@0.157.0/testing/asserts.ts";
-import { copy } from "https://deno.land/std@0.157.0/bytes/mod.ts";
+import { assert } from "https://deno.land/std@0.180.0/testing/asserts.ts";
+import { copy } from "https://deno.land/std@0.180.0/bytes/mod.ts";
 import {
   fromFileUrl,
   resolve,
-} from "https://deno.land/std@0.157.0/path/mod.ts";
+} from "https://deno.land/std@0.180.0/path/mod.ts";
 
 const defaultFileInfo = {
   atime: null,
   birthtime: null,
   blksize: null,
   blocks: null,
-  dev: null,
+  // TODO: https://github.com/denoland/deno/pull/18073
+  // fileInfo.dev is non-nullable.
+  // is this value collect?
+  dev: 0,
   gid: null,
   ino: null,
   isDirectory: false,

@@ -70,7 +70,7 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
   seek: (originalFunc, { ridToFile }) => (rid, ...args) => {
     const file = ridToFile(rid);
     if (file) {
-      return file.seek(...args);
+      return file.seek(Number(args[0]), args[1]);
     }
     return originalFunc(rid, ...args);
   },
@@ -158,11 +158,11 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
     }
     return originalFunc(path);
   },
-  writeFile: (originalFunc, { pathToFile }) => (path, data, options) => {
+  writeFile: (originalFunc, { pathToFile }) => async (path, data, options) => {
     const file = pathToFile(pathFromURL(path));
     if (file) {
-      file.buffer = data;
-      return Promise.resolve();
+      file.buffer = new Uint8Array(await new Response(data).arrayBuffer());
+      return;
     }
     return originalFunc(path, data, options);
   },
@@ -174,14 +174,23 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
     }
     return originalFunc(path, data, options);
   },
-  writeTextFile: (originalFunc, { pathToFile }) => (path, data, options) => {
-    const file = pathToFile(pathFromURL(path));
-    if (file) {
-      file.buffer = encoder.encode(data);
-      return Promise.resolve();
-    }
-    return originalFunc(path, data, options);
-  },
+  writeTextFile:
+    (originalFunc, { pathToFile }) => async (path, data, options) => {
+      const file = pathToFile(pathFromURL(path));
+      if (file) {
+        if (typeof data === "string") {
+          file.buffer = encoder.encode(data);
+          return;
+        } else {
+          const u8Stream = data.pipeThrough(new TextEncoderStream());
+          file.buffer = new Uint8Array(
+            await new Response(u8Stream).arrayBuffer(),
+          );
+          return;
+        }
+      }
+      return originalFunc(path, data, options);
+    },
   writeTextFileSync:
     (originalFunc, { pathToFile }) => (path, data, options) => {
       const file = pathToFile(pathFromURL(path));
