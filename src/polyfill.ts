@@ -158,32 +158,11 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
     }
     return originalFunc(path);
   },
-  writeFile: (originalFunc, { pathToFile }) => (path, data, options) => {
+  writeFile: (originalFunc, { pathToFile }) => async (path, data, options) => {
     const file = pathToFile(pathFromURL(path));
     if (file) {
-      if (ArrayBuffer.isView(data)) {
-        file.buffer = data;
-        return Promise.resolve();
-      } else {
-        const reader = data.getReader();
-        let result = new Uint8Array(8);
-        let offset = 0;
-        return reader.read().then(function processData({ done, value }): Promise<void> {
-          if (done) {
-            file.buffer = result.slice(0, offset);
-            return Promise.resolve();
-          }
-          // Resize the array if needed
-          if (offset + value.byteLength > result.byteLength) {
-            const temp = new Uint8Array((offset + value.byteLength) * 2);
-            temp.set(result, 0);
-            result = temp;
-          }
-          result.set(value, offset);
-          offset += value.byteLength;
-          return reader.read().then(processData);
-        });
-      }
+      file.buffer = new Uint8Array(await new Response(data).arrayBuffer());
+      return;
     }
     return originalFunc(path, data, options);
   },
@@ -195,27 +174,23 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
     }
     return originalFunc(path, data, options);
   },
-  writeTextFile: (originalFunc, { pathToFile }) => (path, data, options) => {
-    const file = pathToFile(pathFromURL(path));
-    if (file) {
-      if (typeof data === "string") {
-        file.buffer = encoder.encode(data);
-        return Promise.resolve();
-      } else {
-        const reader = data.getReader();
-        let result = '';
-        return reader.read().then(function processData({ done, value }): Promise<void> {
-          if (done) {
-            file.buffer = encoder.encode(result);
-            return Promise.resolve();
-          }
-          result += value;
-          return reader.read().then(processData);
-        });
+  writeTextFile:
+    (originalFunc, { pathToFile }) => async (path, data, options) => {
+      const file = pathToFile(pathFromURL(path));
+      if (file) {
+        if (typeof data === "string") {
+          file.buffer = encoder.encode(data);
+          return;
+        } else {
+          const u8Stream = data.pipeThrough(new TextEncoderStream());
+          file.buffer = new Uint8Array(
+            await new Response(u8Stream).arrayBuffer(),
+          );
+          return;
+        }
       }
-    }
-    return originalFunc(path, data, options);
-  },
+      return originalFunc(path, data, options);
+    },
   writeTextFileSync:
     (originalFunc, { pathToFile }) => (path, data, options) => {
       const file = pathToFile(pathFromURL(path));
