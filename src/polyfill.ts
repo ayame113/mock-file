@@ -200,4 +200,32 @@ export const createDenoPolyfill = createDenoPolyfillFunc({
       }
       return originalFunc(path, data, options);
     },
+  stat: (originalFunc, { pathToFile }) => (path, ...args) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return Promise.resolve(file.info);
+    }
+    return originalFunc(path, ...args);
+  },
+  statSync: (originalFunc, { pathToFile }) => (path, ...args) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return file.info;
+    }
+    return originalFunc(path, ...args);
+  },
+  lstat: (originalFunc, { pathToFile }) => (path, ...args) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return Promise.resolve(file.info);
+    }
+    return originalFunc(path, ...args);
+  },
+  lstatSync: (originalFunc, { pathToFile }) => (path, ...args) => {
+    const file = pathToFile(pathFromURL(path));
+    if (file) {
+      return file.info;
+    }
+    return originalFunc(path, ...args);
+  },
 });
