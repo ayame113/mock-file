@@ -4,7 +4,7 @@ import { DB } from "https://deno.land/x/sqlite@v3.7.0/mod.ts";
 import { prepareLocalFile, prepareVirtualFile } from "../mod.ts";
 
 await prepareLocalFile("./example/db.sqlite");
-prepareVirtualFile("./example/db.sqlite");
+prepareVirtualFile("./example/db.sqlite-journal");
 
 // read db
 const db = new DB("./example/db.sqlite", { mode: "read" });
