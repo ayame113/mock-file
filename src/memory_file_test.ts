@@ -1,11 +1,11 @@
 import {
   assertEquals,
   assertThrows,
-} from "https://deno.land/std@0.157.0/testing/asserts.ts";
+} from "https://deno.land/std@0.180.0/testing/asserts.ts";
 import {
   readAll,
   writeAll,
-} from "https://deno.land/std@0.157.0/streams/mod.ts";
+} from "https://deno.land/std@0.180.0/streams/mod.ts";
 import { InMemoryFsFile } from "./memory_file.ts";
 
 const targetFile = new URL("../tests/tmp.txt", import.meta.url);
