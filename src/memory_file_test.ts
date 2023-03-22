@@ -82,14 +82,13 @@ async function assertsFileState<T>(
   f1: InMemoryFsFile,
   f2: Deno.FsFile,
   func: (arg: Deno.FsFile) => T | Promise<T>,
-  expect?: T,
+  expect?: Awaited<T>,
 ) {
   await assertFileContent(f1);
   assertEquals(offset(f1), offset(f2));
   const [res1, res2] = [await func(f1), await func(f2)];
   assertEquals(res1, res2);
   if (expect != null) {
-    // @ts-ignore dunno
     assertEquals(res1, expect);
   }
   assertEquals(offset(f1), offset(f2));
