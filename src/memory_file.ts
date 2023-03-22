@@ -10,7 +10,10 @@ const defaultFileInfo = {
   birthtime: null,
   blksize: null,
   blocks: null,
-  dev: null,
+  // TODO: https://github.com/denoland/deno/pull/18073
+  // fileInfo.dev is non-nullable.
+  // is this value collect?
+  dev: 0,
   gid: null,
   ino: null,
   isDirectory: false,
