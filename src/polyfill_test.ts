@@ -7,7 +7,10 @@ const url = new URL("./[[virtual]].txt", import.meta.url);
 const defaultRid = Math.random();
 const defaultOpenFileResult = Symbol("[[defaultOpenFileResult]]");
 const defaultFileContent = `hello ${Math.random()} world`;
-const defaultBuffer = { buffer: new TextEncoder().encode(defaultFileContent) };
+const defaultBuffer = {
+  buffer: new TextEncoder().encode(defaultFileContent),
+  info: Symbol("[[defaultFileInfo]]") as unknown as Deno.FileInfo,
+};
 const DenoPolyfill = createDenoPolyfill({
   ridToFile(rid) {
     assertEquals(rid, defaultRid);
@@ -306,5 +309,33 @@ Deno.test({
       defaultBuffer.buffer,
       new TextEncoder().encode(defaultFileContent),
     );
+  },
+});
+
+Deno.test({
+  name: "polyfill - stat",
+  async fn() {
+    assertEquals<unknown>(await DenoPolyfill.stat(url), defaultBuffer.info);
+  },
+});
+
+Deno.test({
+  name: "polyfill - statSync",
+  fn() {
+    assertEquals<unknown>(DenoPolyfill.statSync(url), defaultBuffer.info);
+  },
+});
+
+Deno.test({
+  name: "polyfill - lstat",
+  async fn() {
+    assertEquals<unknown>(await DenoPolyfill.lstat(url), defaultBuffer.info);
+  },
+});
+
+Deno.test({
+  name: "polyfill - lstatSync",
+  fn() {
+    assertEquals<unknown>(DenoPolyfill.lstatSync(url), defaultBuffer.info);
   },
 });

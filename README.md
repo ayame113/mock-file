@@ -99,6 +99,10 @@ can use any Uint8Array as the content of the file.
 - [x] `Deno.writeFileSync(path: string | URL, data: Uint8Array, options?: Deno.WriteFileOptions | undefined): void`
 - [x] `Deno.writeTextFile(path: string | URL, data: string, options?: Deno.WriteFileOptions | undefined): Promise<void>`
 - [x] `Deno.writeTextFileSync(path: string | URL, data: string, options?: Deno.WriteFileOptions | undefined): void`
+- [x] `Deno.stat(path: string | URL): Promise<Deno.FileInfo>`
+- [x] `Deno.statSync(path: string | URL): Deno.FileInfo`
+- [x] `Deno.lstat(path: string | URL): Promise<Deno.FileInfo>`
+- [x] `Deno.lstatSync(path: string | URL): Deno.FileInfo`
 - [ ] `Deno.fdatasyncSync(rid: number): void`
 - [ ] `Deno.fsync(rid: number): Promise<void>`
 - [ ] `Deno.fdatasyncSync(rid: number): void`
@@ -107,8 +111,6 @@ can use any Uint8Array as the content of the file.
 - [ ] `Deno.flockSync(rid: number, exclusive?: boolean | undefined): void`
 - [ ] `Deno.funlock(rid: number): Promise<void>`
 - [ ] `Deno.funlockSync(rid: number): void`
-- [ ] `Deno.stat(path: string | URL): Promise<Deno.FileInfo>`
-- [ ] `Deno.statSync(path: string | URL): Deno.FileInfo`
 - [ ] `Deno.truncate(name: string, len?: number | undefined): Promise<void>`
 - [ ] `Deno.truncateSync(name: string, len?: number | undefined): void`
 - [ ] And more...(?)
