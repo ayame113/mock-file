@@ -189,6 +189,10 @@ export class InMemoryFsFile implements Deno.FsFile {
     return new ReadableStream({
       pull: (controller) => {
         const res = this.#file.buffer.slice(this.#offset);
+        if (res.byteLength === 0) {
+          controller.close();
+          return;
+        }
         this.#offset += res.byteLength;
         controller.enqueue(res);
       },
