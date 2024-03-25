@@ -1,4 +1,4 @@
-import { DB } from "https://deno.land/x/sqlite@v3.7.0/mod.ts";
+import { DB } from "https://deno.land/x/sqlite@v3.8/mod.ts";
 // Deno.removeSync("./example/db.sqlite");
 const db = new DB("./example/db.sqlite", { mode: "create" });
 db.execute(`

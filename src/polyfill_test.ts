@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.181.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.220.1/testing/asserts.ts";
 
 import { createDenoPolyfill } from "./polyfill.ts";
 import { InMemoryFsFile, pathFromURL, VirtualFile } from "./memory_file.ts";
